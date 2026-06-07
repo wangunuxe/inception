@@ -14,6 +14,42 @@ services:
       - inception
     restart: unless-stopped
 
+  wordpress:
+    build: ./requirements/wordpress
+    container_name: wordpress
+    env_file: .env
+    environment:
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - DOMAIN_NAME=${DOMAIN_NAME}
+      - WP_ADMIN_USER=${WP_ADMIN_USER}
+      - WP_ADMIN_PASSWORD=${WP_ADMIN_PASSWORD}
+      - WP_ADMIN_EMAIL=${WP_ADMIN_EMAIL}
+      - WP_USER=${WP_USER}
+      - WP_USER_PASSWORD=${WP_USER_PASSWORD}
+      - WP_USER_EMAIL=${WP_USER_EMAIL}
+    volumes:
+      - wp_data:/var/www/wordpress
+    networks:
+      - inception
+    depends_on:
+      - mariadb
+    restart: unless-stopped
+
+  nginx:
+    build: ./requirements/nginx
+    container_name: nginx
+    ports:
+      - "443:443"
+    volumes:
+      - wp_data:/var/www/wordpress
+    networks:
+      - inception
+    depends_on:
+      - wordpress
+    restart: unless-stopped
+
 networks:
   inception:
     driver: bridge
@@ -25,3 +61,9 @@ volumes:
       type: none
       o: bind
       device: /home/inception_1/data/db
+  wp_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/inception_1/data/wordpress
