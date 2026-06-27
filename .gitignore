@@ -1,2 +1,4 @@
 secrets/
 srcs/.env
+DEV_DOC.md
+USER_DOC.md
